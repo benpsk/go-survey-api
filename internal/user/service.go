@@ -38,7 +38,7 @@ func (s *UserService) Login(ctx context.Context, user User) (*Token, error) {
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(user.Password))
 	if err != nil {
-		return nil, errors.New("Passord does not match!")
+		return nil, errors.New("Password does not match")
 	}
 	token, err := generateJwt(u.Id)
 	if err != nil {

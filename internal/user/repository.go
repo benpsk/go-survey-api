@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"errors"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -20,7 +21,7 @@ func (repo *UserRepository) GetByEmail(ctx context.Context, email string) (*User
 
 	err := repo.Conn.QueryRow(ctx, query, email).Scan(&user.Id, &user.Name, &user.Email, &user.Password)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("User not found")
 	}
 	return &user, nil
 }

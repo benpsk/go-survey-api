@@ -55,7 +55,7 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		pkg.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
 	}
-	validationErrors := validateStore(user)
+	validationErrors := validateLogin(user)
 	if len(validationErrors) > 0 {
 		pkg.ValidationError(w, validationErrors, http.StatusBadRequest)
 		return
@@ -65,5 +65,5 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		pkg.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	pkg.Success(w, res, http.StatusCreated)
+	pkg.Success(w, res, http.StatusOK)
 }
