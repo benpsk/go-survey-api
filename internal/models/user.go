@@ -1,4 +1,4 @@
-package user
+package models
 
 type User struct {
 	Id       int    `json:"id"`
@@ -11,10 +11,4 @@ type UserResponse struct {
 	Id    int    `json:"id"`
 	Name  string `json:"name"`
 	Email string `json:"email"`
-}
-
-type Token struct {
-	Type        string `json:"type"`
-	AccessToken string `json:"access_token"`
-	ExpiredAt   int64  `json:"expired_at"`
 }

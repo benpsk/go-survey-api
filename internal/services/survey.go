@@ -1,18 +1,12 @@
-package survey
+package services
 
 import (
 	"context"
+
+	"github.com/benpsk/go-survey-api/internal/models"
 )
 
-type SurveyService struct {
-	Repo *SurveyRepository
-}
-
-func NewSurveyService(repo *SurveyRepository) *SurveyService {
-	return &SurveyService{Repo: repo}
-}
-
-func (s *SurveyService) Store(ctx context.Context, survey SurveyInput) (*SurveyInput, error) {
+func (s *Service) Store(ctx context.Context, survey models.SurveyInput) (*models.SurveyInput, error) {
 	res, err := s.Repo.Store(ctx, survey)
 	if err != nil {
 		return nil, err
@@ -20,14 +14,14 @@ func (s *SurveyService) Store(ctx context.Context, survey SurveyInput) (*SurveyI
 	return s.formatSurvey(*res)
 }
 
-func (s *SurveyService) Get(ctx context.Context, userId int) ([]SurveyInput, error) {
-	surveys, err := s.Repo.getByUserId(ctx, userId)
+func (s *Service) Get(ctx context.Context, userId int) ([]models.SurveyInput, error) {
+	surveys, err := s.Repo.GetByUserId(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
-	var result []SurveyInput
+	var result []models.SurveyInput
 	for _, res := range surveys {
-		survey := SurveyInput{
+		survey := models.SurveyInput{
 			Id:        res.Id,
 			UserId:    res.UserId,
 			Name:      res.Name,
@@ -42,16 +36,16 @@ func (s *SurveyService) Get(ctx context.Context, userId int) ([]SurveyInput, err
 	return result, nil
 }
 
-func (s *SurveyService) GetById(ctx context.Context, id int) (*SurveyInput, error) {
-	res, err := s.Repo.getById(ctx, id)
+func (s *Service) GetById(ctx context.Context, id int) (*models.SurveyInput, error) {
+	res, err := s.Repo.GetById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 	return s.formatSurvey(*res)
 }
 
-func (s *SurveyService) formatSurvey(res Survey) (*SurveyInput, error) {
-	return &SurveyInput{
+func (s *Service) formatSurvey(res models.Survey) (*models.SurveyInput, error) {
+	return &models.SurveyInput{
 		Id:        res.Id,
 		UserId:    res.UserId,
 		Name:      res.Name,
@@ -63,7 +57,7 @@ func (s *SurveyService) formatSurvey(res Survey) (*SurveyInput, error) {
 	}, nil
 }
 
-func (s *SurveyService) Update(ctx context.Context, id int, survey SurveyInput) (*SurveyInput, error) {
+func (s *Service) Update(ctx context.Context, id int, survey models.SurveyInput) (*models.SurveyInput, error) {
 	res, err := s.Repo.Update(ctx, id, survey)
 	if err != nil {
 		return nil, err

@@ -1,4 +1,4 @@
-package user
+package services
 
 import (
 	"context"
@@ -6,23 +6,16 @@ import (
 	"time"
 
 	"github.com/benpsk/go-survey-api/config"
+	"github.com/benpsk/go-survey-api/internal/models"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
-type UserService struct {
-	Repo *UserRepository
-}
-
-func NewUserService(repo *UserRepository) *UserService {
-	return &UserService{Repo: repo}
-}
-
-func (s *UserService) GetUserById(ctx context.Context, id int) (*UserResponse, error) {
+func (s *Service) GetUserById(ctx context.Context, id int) (*models.UserResponse, error) {
 	return s.Repo.GetUserById(ctx, id)
 }
 
-func (s *UserService) Create(ctx context.Context, user User) (*UserResponse, error) {
+func (s *Service) Create(ctx context.Context, user models.User) (*models.UserResponse, error) {
 	password, err := hashPassword(user.Password)
 	if err != nil {
 		return nil, err
@@ -31,7 +24,7 @@ func (s *UserService) Create(ctx context.Context, user User) (*UserResponse, err
 	return s.Repo.Create(ctx, user)
 }
 
-func (s *UserService) Login(ctx context.Context, user User) (*Token, error) {
+func (s *Service) Login(ctx context.Context, user models.User) (*models.Token, error) {
 	u, err := s.Repo.GetByEmail(ctx, user.Email)
 	if err != nil {
 		return nil, err
@@ -55,7 +48,7 @@ func hashPassword(password string) (string, error) {
 	return string(hashed), nil
 }
 
-func generateJwt(userId int) (*Token, error) {
+func generateJwt(userId int) (*models.Token, error) {
 	exp := time.Now().Add(24 * time.Hour).Unix()
 	claims := jwt.MapClaims{
 		"user_id": userId,
@@ -66,7 +59,7 @@ func generateJwt(userId int) (*Token, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Token{
+	return &models.Token{
 		Type:        "Bearer",
 		AccessToken: signed,
 		ExpiredAt:   exp,

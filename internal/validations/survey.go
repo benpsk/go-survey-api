@@ -1,10 +1,12 @@
-package survey
+package validations
 
 import (
 	"time"
+
+	"github.com/benpsk/go-survey-api/internal/models"
 )
 
-func validateStore(survey SurveyInput) map[string]string {
+func StoreSurvey(survey models.SurveyInput) map[string]string {
 	msg := make(map[string]string)
 	if survey.Name == "" {
 		msg["name"] = "Name is required"

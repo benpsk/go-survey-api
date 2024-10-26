@@ -1,18 +1,25 @@
-package pkg
+package handlers
 
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/benpsk/go-survey-api/internal/models"
+	"github.com/benpsk/go-survey-api/internal/services"
 )
 
-type Response struct {
-	Data interface{} `json:"data"`
+type Handler struct {
+	Service *services.Service
+}
+
+func New(s *services.Service) *Handler {
+	return &Handler{Service: s}
 }
 
 func Success(w http.ResponseWriter, data interface{}, status int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	response := Response{Data: data}
+	response := models.Response{Data: data}
 	err := json.NewEncoder(w).Encode(response)
 	if err != nil {
 		Error(w, "Failed to encode error message", http.StatusInternalServerError)

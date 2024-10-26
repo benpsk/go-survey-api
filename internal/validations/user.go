@@ -1,11 +1,13 @@
-package user
+package validations
 
 import (
 	"net/mail"
 	"strings"
+
+	"github.com/benpsk/go-survey-api/internal/models"
 )
 
-func validateStore(user User) map[string]string {
+func StoreUser(user models.User) map[string]string {
 	msg := make(map[string]string)
 	if strings.TrimSpace(user.Name) == "" {
 		msg["name"] = "Name is required"
@@ -16,12 +18,12 @@ func validateStore(user User) map[string]string {
 	return validate(user, msg)
 }
 
-func validateLogin(user User) map[string]string {
+func UserLogin(user models.User) map[string]string {
 	msg := make(map[string]string)
 	return validate(user, msg)
 }
 
-func validate(user User, msg map[string]string) map[string]string {
+func validate(user models.User, msg map[string]string) map[string]string {
 	if strings.TrimSpace(user.Password) == "" {
 		msg["password"] = "Password is required"
 	}
@@ -37,5 +39,4 @@ func validate(user User, msg map[string]string) map[string]string {
 		msg["email"] = "Email must not exceed 100 characters"
 	}
 	return msg
-
 }

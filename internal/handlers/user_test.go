@@ -1,4 +1,4 @@
-package user_test
+package handlers_test
 
 import (
 	"context"
@@ -11,14 +11,16 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/benpsk/go-survey-api/internal"
+	"github.com/benpsk/go-survey-api/internal/handlers"
+	"github.com/benpsk/go-survey-api/internal/repositories"
+	"github.com/benpsk/go-survey-api/internal/services"
 	"github.com/jackc/pgx/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
 var (
 	db        *pgx.Conn
-	container *internal.Container
+	container *handlers.Handler
 )
 
 // Setup runs before all tests to initialize the DB connection.
@@ -29,8 +31,9 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		log.Fatalf("Failed to connect to test database: %v", err)
 	}
-
-	container = internal.NewContainer(db)
+	repo := repositories.New(db)
+	service := services.New(repo)
+	container = handlers.New(service)
 
 	os.Exit(m.Run())
 }
@@ -61,7 +64,7 @@ func TestUserHandler_User_Success(t *testing.T) {
 	req = req.WithContext(context.WithValue(req.Context(), "userId", float64(1)))
 
 	rr := httptest.NewRecorder()
-	container.UserHandler.User(rr, req)
+	container.User(rr, req)
 
 	if rr.Code != http.StatusOK {
 		t.Errorf("Status expected: %v, got: %v", http.StatusOK, rr.Code)
@@ -91,7 +94,7 @@ func TestUserHandler_User_Unauthorized(t *testing.T) {
 	`)
 	req := httptest.NewRequest("GET", "/user", nil)
 	rr := httptest.NewRecorder()
-	container.UserHandler.User(rr, req)
+	container.User(rr, req)
 
 	if rr.Code != http.StatusUnauthorized {
 		t.Errorf("Status expected: %v, got: %v", http.StatusOK, rr.Code)
@@ -119,7 +122,7 @@ func TestUserHandler_User_Not_Found(t *testing.T) {
 	req := httptest.NewRequest("GET", "/user", nil)
 	req = req.WithContext(context.WithValue(req.Context(), "userId", float64(100)))
 	rr := httptest.NewRecorder()
-	container.UserHandler.User(rr, req)
+	container.User(rr, req)
 
 	if rr.Code != http.StatusNotFound {
 		t.Errorf("Status expected: %v, got: %v", http.StatusOK, rr.Code)
@@ -259,7 +262,7 @@ func TestUserHandler_Register_Validation_Success_Fail(t *testing.T) {
 			req.Header.Set("Content-Type", "application/json")
 
 			rr := httptest.NewRecorder()
-			container.UserHandler.Register(rr, req)
+			container.Register(rr, req)
 
 			var response map[string]interface{}
 			json.NewDecoder(rr.Body).Decode(&response)
@@ -286,10 +289,10 @@ func TestUserHandler_Register_Password_Hashed(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	rr := httptest.NewRecorder()
-	container.UserHandler.Register(rr, req)
+	container.Register(rr, req)
 
 	var actualPassword string
-	err := container.Db.QueryRow(context.Background(), "SELECT password FROM users WHERE id=$1", 1).Scan(&actualPassword)
+	err := db.QueryRow(context.Background(), "SELECT password FROM users WHERE id=$1", 1).Scan(&actualPassword)
 	if err != nil {
 		t.Errorf("Query error: %v", err)
 	}
@@ -361,7 +364,7 @@ func TestUserHandler_Login_Validation(t *testing.T) {
 			req := httptest.NewRequest("POST", "/login", strings.NewReader(string(body)))
 			req.Header.Set("Content-Type", "application/json")
 			rr := httptest.NewRecorder()
-			container.UserHandler.Login(rr, req)
+			container.Login(rr, req)
 
 			var response map[string]interface{}
 			json.NewDecoder(rr.Body).Decode(&response)
@@ -391,7 +394,7 @@ func TestUserHandler_Login_Success(t *testing.T) {
 	req := httptest.NewRequest("POST", "/login", strings.NewReader(string(body)))
 	req.Header.Set("Content-Type", "application/json")
 	rr := httptest.NewRecorder()
-	container.UserHandler.Login(rr, req)
+	container.Login(rr, req)
 
 	type tokenResponse struct {
 		Data struct {

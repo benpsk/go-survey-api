@@ -1,4 +1,4 @@
-package survey
+package models
 
 import "time"
 
