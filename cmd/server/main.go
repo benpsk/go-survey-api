@@ -4,6 +4,9 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
+	"time"
 
 	"github.com/benpsk/go-survey-api/config"
 	"github.com/benpsk/go-survey-api/database"
@@ -14,6 +17,13 @@ import (
 )
 
 func main() {
+	if config.ENV == "PRODUCTION" {
+		logFile := generateLog()
+		defer logFile.Close()
+		os.Stderr = logFile
+		log.SetOutput(logFile)
+	}
+
 	conn, err := database.Connect(config.DATABASE_URL)
 	if err != nil {
 		log.Fatal(err)
@@ -28,4 +38,14 @@ func main() {
 
 	log.Printf("Server running on: %v", config.PORT)
 	log.Fatal(http.ListenAndServe(":"+config.PORT, mux))
+}
+
+func generateLog() *os.File {
+	date := time.Now().Format("2006-01-02")
+	fileName := filepath.Join("logs", "errors-"+date+".log")
+	logFile, err := os.OpenFile(fileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		log.Fatalf("Failed to create log file: %v", err)
+	}
+	return logFile
 }
