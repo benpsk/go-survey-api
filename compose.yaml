@@ -9,9 +9,9 @@
 # https://github.com/docker/awesome-compose
 services:
   server:
-    image: cosmtrek/air
-    # working_dir value has to be the same of mapped volume
-    working_dir: /app
+    build:
+      context: app
+      target: development
     environment:
       - ENV=${ENV:-PRODUCTION}
       - DATABASE_URL=${DATABASE_URL}
