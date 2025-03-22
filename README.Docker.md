@@ -1,3 +1,8 @@
+### Running production version 
+$ docker compose -f compose.yaml -f compose.production.yaml build 
+$ docker compose -f compose.yaml -f compose.production.yaml up 
+
+
 ### Building and running your application
 
 When you're ready, start your application by running:

@@ -9,14 +9,16 @@
 # https://github.com/docker/awesome-compose
 services:
   server:
-    build:
-      context: app
-      target: final
+    image: cosmtrek/air
+    # working_dir value has to be the same of mapped volume
+    working_dir: /app
     environment:
       - ENV=${ENV:-PRODUCTION}
       - DATABASE_URL=${DATABASE_URL}
       - PORT=${PORT}
       - JWT_SECRET=${JWT_SECRET}
+    volumes: 
+      - ./app/:/app/
     depends_on:
       db:
         condition: service_healthy
