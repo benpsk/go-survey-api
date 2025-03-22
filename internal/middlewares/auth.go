@@ -3,9 +3,9 @@ package middlewares
 import (
 	"context"
 	"net/http"
+	"os"
 	"strings"
 
-	"github.com/benpsk/go-survey-api/config"
 	"github.com/benpsk/go-survey-api/internal/handlers"
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -19,7 +19,7 @@ func Auth(next http.HandlerFunc) http.HandlerFunc {
 		}
 		tokenStr := strings.TrimPrefix(header, "Bearer ")
 		token, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
-			return []byte(config.JWT_SECRET), nil
+			return []byte(os.Getenv("JWT_SECRET")), nil
 		})
 		if err != nil || !token.Valid {
 			handlers.Error(w, "Invalid token", http.StatusUnauthorized)

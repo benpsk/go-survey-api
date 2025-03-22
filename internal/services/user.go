@@ -3,9 +3,9 @@ package services
 import (
 	"context"
 	"errors"
+	"os"
 	"time"
 
-	"github.com/benpsk/go-survey-api/config"
 	"github.com/benpsk/go-survey-api/internal/models"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
@@ -55,7 +55,7 @@ func generateJwt(userId int) (*models.Token, error) {
 		"exp":     exp,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signed, err := token.SignedString([]byte(config.JWT_SECRET))
+	signed, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
 		return nil, err
 	}

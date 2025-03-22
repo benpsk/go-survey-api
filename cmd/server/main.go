@@ -2,29 +2,41 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"time"
 
-	"github.com/benpsk/go-survey-api/config"
 	"github.com/benpsk/go-survey-api/database"
 	"github.com/benpsk/go-survey-api/internal"
 	"github.com/benpsk/go-survey-api/internal/handlers"
 	"github.com/benpsk/go-survey-api/internal/repositories"
 	"github.com/benpsk/go-survey-api/internal/services"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	if config.ENV == "PRODUCTION" {
+  // Get the absolute path to the root directory
+	_, currentFilePath, _, _ := runtime.Caller(0)
+	projectRoot := filepath.Join(filepath.Dir(currentFilePath), "../../")
+
+  fmt.Println(projectRoot)
+	err := godotenv.Load(filepath.Join(projectRoot, ".env"))
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	if os.Getenv("ENV") == "PRODUCTION" {
 		logFile := generateLog()
 		defer logFile.Close()
 		os.Stderr = logFile
 		log.SetOutput(logFile)
 	}
 
-	conn, err := database.Connect(config.DATABASE_URL)
+	conn, err := database.Connect(os.Getenv("DATABASE_URL"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -36,8 +48,8 @@ func main() {
 
 	mux := internal.Router(handler)
 
-	log.Printf("Server running on: %v", config.PORT)
-	log.Fatal(http.ListenAndServe(":"+config.PORT, mux))
+	log.Printf("Server running on: %v", os.Getenv("PORT"))
+	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), mux))
 }
 
 func generateLog() *os.File {

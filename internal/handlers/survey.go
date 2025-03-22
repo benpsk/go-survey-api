@@ -51,7 +51,7 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	Success(w, res, http.StatusCreated)
+	Success(w, res, http.StatusOK)
 }
 
 func (h *Handler) GetById(w http.ResponseWriter, r *http.Request) {
