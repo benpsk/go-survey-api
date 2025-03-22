@@ -1,4 +1,0 @@
-package config
-
-import "os"
-

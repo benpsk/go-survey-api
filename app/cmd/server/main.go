@@ -2,12 +2,10 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
-	"runtime"
 	"time"
 
 	"github.com/benpsk/go-survey-api/database"
@@ -15,20 +13,9 @@ import (
 	"github.com/benpsk/go-survey-api/internal/handlers"
 	"github.com/benpsk/go-survey-api/internal/repositories"
 	"github.com/benpsk/go-survey-api/internal/services"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-  // Get the absolute path to the root directory
-	_, currentFilePath, _, _ := runtime.Caller(0)
-	projectRoot := filepath.Join(filepath.Dir(currentFilePath), "../../")
-
-  fmt.Println(projectRoot)
-	err := godotenv.Load(filepath.Join(projectRoot, ".env"))
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
 	if os.Getenv("ENV") == "PRODUCTION" {
 		logFile := generateLog()
 		defer logFile.Close()
